@@ -16,10 +16,10 @@ public class DB {
 	public static Connection getConnection() {
 		if (conn == null) {
 			try {
+				CreateDB.createDatabase();
 				Properties props = loadProperties();
 				String url = props.getProperty("dburl");
 				conn = DriverManager.getConnection(url, props);
-				CreateDB.createDatabase();
 			} catch (SQLException e) {
 				throw new DbException(e.getMessage());
 			}

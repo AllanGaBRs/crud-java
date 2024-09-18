@@ -7,6 +7,7 @@
 	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/mail"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/MySQLConnector"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/BCrypt"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

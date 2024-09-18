@@ -10,6 +10,7 @@ public interface UserDao {
 	void update(User obj);
 	void inactivateById(Integer id);
 	User findById(Integer id);
+	User findByEmailPassword(User obj);
 	List<User> findAll();
 	
 }

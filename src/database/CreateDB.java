@@ -14,18 +14,21 @@ public class CreateDB {
 	private static Statement st = null;
 	private static Connection conn = null;
 
+	//Metodo para criar o banco automaticamente
 	public static void createDatabase() {
 		try {
 			conn = DriverManager.getConnection(dburl, user, password);
 			st = conn.createStatement();
 			String createDataBase = "CREATE DATABASE IF NOT EXISTS " + DATABASE_NAME;
 			st.execute(createDataBase);
+			//Metodo para criar a tabela
 			createTable();
 		} catch (SQLException e) {
 			throw new DbException(e.getMessage());
 		}
 	}
 
+	//Metodo para criar a tabela
 	private static void createTable() {
 		try {
 			conn = DriverManager.getConnection(dburl, user, password);
