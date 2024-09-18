@@ -2,6 +2,9 @@
 Este projeto implementa um sistema de gerenciamento de usuários em Java, utilizando um CRUD (Create, Read, Update, Delete) para realizar operações básicas no console. As senhas dos usuários são criptografadas antes de serem salvas no banco de dados, e o sistema permite a redefinição de senhas por meio de um e-mail com código de validação.
 
 ## Funcionalidades
+
+Criação automática do banco de dados: O sistema cria o banco de dados e a tabela automaticamente, caso ela não exista.
+
 Cadastro de Usuário: Permite criar um novo usuário com nome, e-mail e senha.
 
 Listar Usuários: Exibe todos os usuários cadastrados.
