@@ -27,6 +27,7 @@ public class UserDaoJDBC implements UserDao {
 	@Override
 	public void insert(User obj) {
 		try {
+			conn.setAutoCommit(false);
 			st = conn.prepareStatement("INSERT INTO users " + "(Name, Email, Password) " + "VALUES " + "(?, ?, ?)",
 					Statement.RETURN_GENERATED_KEYS);
 			st.setString(1, obj.getName());
@@ -45,9 +46,14 @@ public class UserDaoJDBC implements UserDao {
 			} else {
 				throw new DbException("Unexpected error! No rows affected!");
 			}
-
+			conn.commit();
 		} catch (SQLException e) {
-			throw new DbException(e.getMessage());
+			try {
+				conn.rollback();
+				throw new DbException(e.getMessage());
+			} catch (SQLException rollback) {
+				throw new DbException(rollback.getMessage());
+			}
 		} finally {
 			DB.closeStatement(st);
 		}
@@ -58,6 +64,7 @@ public class UserDaoJDBC implements UserDao {
 	public void update(User obj) {
 		PreparedStatement st = null;
 		try {
+			conn.setAutoCommit(false);
 			st = conn.prepareStatement("UPDATE users "
 					+ "SET Name = ?, Email = ?, Password = ?" 
 					+ "WHERE Id = ?",
@@ -68,9 +75,14 @@ public class UserDaoJDBC implements UserDao {
 			st.setInt(4, obj.getId());
 
 			st.executeUpdate();
-
+			conn.commit();
 		} catch (SQLException e) {
-			throw new DbException(e.getMessage());
+			try {
+				conn.rollback();
+				throw new DbException(e.getMessage());
+			} catch (SQLException rollback) {
+				throw new DbException(rollback.getMessage());
+			}
 		} finally {
 			DB.closeStatement(st);
 		}
