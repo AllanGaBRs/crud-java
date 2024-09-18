@@ -94,7 +94,25 @@ public class UserDaoJDBC implements UserDao {
 
 	@Override
 	public void deleteById(Integer id) {
-		// TODO Auto-generated method stub
+		try {
+			conn.setAutoCommit(false);
+
+			st = conn.prepareStatement("DELETE FROM users WHERE Id = ?");
+			st.setInt(1, id);
+
+			st.executeUpdate();
+
+			conn.commit();
+		} catch (SQLException e) {
+			try {
+				conn.rollback();
+				throw new DbException(e.getMessage());
+			} catch (SQLException rollback) {
+				throw new DbException(rollback.getMessage());
+			}
+		} finally {
+			DB.closeStatement(st);
+		}
 
 	}
 

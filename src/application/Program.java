@@ -17,9 +17,15 @@ public class Program {
 			System.out.println(user.getName());
 		}
 		System.out.println();
+		userDao.deleteById(1);
+		System.out.println("Deletado");
+		
+		System.out.println();
 		
 		User user = userDao.findById(1);
-		System.out.println(user.getName());
+		System.out.println(user);
+		
+		
 		
 		/*Scanner sc = new Scanner(System.in);
 
