@@ -6,26 +6,15 @@ import java.util.List;
 import model.dao.DaoFactory;
 import model.dao.UserDao;
 import model.entities.User;
+import model.security.Security;
 
 public class Program {
 
 	public static void main(String[] args) throws NoSuchAlgorithmException {
 		UserDao userDao = DaoFactory.createUserDao();
-		List<User> list = userDao.findAll();
-		
-		for(User user : list) {
-			System.out.println(user.getName());
-		}
-		System.out.println();
-		userDao.deleteById(1);
-		System.out.println("Deletado");
-		
-		System.out.println();
-		
-		User user = userDao.findById(1);
-		System.out.println(user);
 		
 		
+		Security.sendCodeByEmail("allanmediogames@gmail.com");
 		
 		/*Scanner sc = new Scanner(System.in);
 
