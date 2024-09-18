@@ -16,6 +16,10 @@ public class Program {
 		for(User user : list) {
 			System.out.println(user.getName());
 		}
+		System.out.println();
+		
+		User user = userDao.findById(1);
+		System.out.println(user.getName());
 		
 		/*Scanner sc = new Scanner(System.in);
 

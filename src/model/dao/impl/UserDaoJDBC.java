@@ -100,8 +100,23 @@ public class UserDaoJDBC implements UserDao {
 
 	@Override
 	public User findById(Integer id) {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			st = conn.prepareStatement("SELECT * FROM users " + "WHERE Id = ?");
+			st.setInt(1, id);
+
+			rs = st.executeQuery();
+
+			if (rs.next()) {
+				return instantiateUser(rs);
+			}
+
+			return null;
+		} catch (SQLException e) {
+			throw new DbException(e.getMessage());
+		} finally {
+			DB.closeResultSet(rs);
+			DB.closeStatement(st);
+		}
 	}
 
 	@Override
