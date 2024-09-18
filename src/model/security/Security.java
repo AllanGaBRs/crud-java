@@ -10,8 +10,14 @@ import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.SimpleEmail;
 import org.mindrot.jbcrypt.BCrypt;
 
-public class Security {
+import database.DbException;
+import model.dao.DaoFactory;
+import model.dao.UserDao;
+import model.entities.User;
 
+public class Security {
+	private static UserDao userDao = DaoFactory.createUserDao();
+	
 	// Gerar hash da senha
 	public static String hashPassword(String plainPassword) {
 		// Gera o salt automaticamente
@@ -45,11 +51,11 @@ public class Security {
 		return email;
 	}
 
-	public static void sendCodeByEmail(String userEmail) {
+	public static void sendCodeByEmail(User user) {
 		System.setProperty("mail.smtp.ssl.protocols", "TLSv1.2");
 		String code = code();
 		String meuEmail = "inovatech.cisi@gmail.com";
-		String minhaSenha = "vazia apenas quando faço um commit"; // Senha de app gerada no Gmail
+		String minhaSenha = "cpvn phzh jzso szpl"; // Senha de app gerada no Gmail
 
 		SimpleEmail email = new SimpleEmail();
 		email.setHostName("smtp.gmail.com");
@@ -61,15 +67,18 @@ public class Security {
 			email.setFrom(meuEmail);
 			email.setSubject("Mudança de senha");
 			email.setMsg("Seu codigo é " + code);
-			email.addTo(userEmail);
+			email.addTo(user.getEmail());
 			email.send();
+			
+			user.setPasscode(code);
+			userDao.updatePasscode(user);
 			System.out.println("Email enviado com sucesso!");
 		} catch (EmailException e) {
 			e.printStackTrace();
 		}
 	}
 
-	public static String code() {
+	private static String code() {
 		String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 		int LENGTH = 8;
 		SecureRandom random = new SecureRandom();
@@ -81,4 +90,34 @@ public class Security {
 		}
 		return sb.toString();
 	}
+	
+	public static User userVerification(User user, Scanner sc) {
+		User path = userVerify(user);
+		if(path != null) {
+			return path;
+		}
+		return newUser(user, sc);
+	}
+	
+	private static User userVerify(User user) {
+		return userDao.findByEmailPassword(user);
+	}
+	
+	private static User newUser(User user, Scanner sc) {
+		System.out.println("Ops! user dont exists. Create a new user:");
+		System.out.print("User name: ");
+		String name = sc.nextLine();
+		String email = Security.checkEmail(sc);
+		System.out.print("Password: ");
+		String senha = sc.nextLine();
+		User newUser = new User(null, name, email, senha);
+		User path = userVerify(user);
+		if(path != null) {
+			throw new DbException("Error: user exists");
+		}
+		userDao.insert(newUser);
+		System.out.println("Inserted! your id: " + newUser.getId());
+		return newUser;
+	}
+	
 }

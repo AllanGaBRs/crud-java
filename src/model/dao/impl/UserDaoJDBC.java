@@ -10,12 +10,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.mindrot.jbcrypt.BCrypt;
-
 import database.DB;
 import database.DbException;
 import model.dao.UserDao;
 import model.entities.User;
+import model.security.Security;
 
 public class UserDaoJDBC implements UserDao {
 
@@ -31,11 +30,12 @@ public class UserDaoJDBC implements UserDao {
 	public void insert(User obj) {
 		try {
 			conn.setAutoCommit(false);
-			st = conn.prepareStatement("INSERT INTO users " + "(Name, Email, Password) " + "VALUES " + "(?, ?, ?)",
+			st = conn.prepareStatement("INSERT INTO users " + "(Name, Email, Password, Passcode) " + "VALUES " + "(?, ?, ?, ?)",
 					Statement.RETURN_GENERATED_KEYS);
 			st.setString(1, obj.getName());
 			st.setString(2, obj.getEmail());
-			st.setString(3, obj.getPassword());
+			st.setString(3, Security.hashPassword(obj.getPassword()));
+			st.setString(4, obj.getPasscode());
 
 			int rowsAffected = st.executeUpdate();
 
@@ -65,17 +65,17 @@ public class UserDaoJDBC implements UserDao {
 
 	@Override
 	public void update(User obj) {
-		PreparedStatement st = null;
 		try {
 			conn.setAutoCommit(false);
 			st = conn.prepareStatement("UPDATE users "
-					+ "SET Name = ?, Email = ?, Password = ?" 
+					+ "SET Name = ?, Email = ?, Password = ?, Passcode = ? " 
 					+ "WHERE Id = ?",
 					Statement.RETURN_GENERATED_KEYS);
 			st.setString(1, obj.getName());
 			st.setString(2, obj.getEmail());
 			st.setString(3, obj.getPassword());
-			st.setInt(4, obj.getId());
+			st.setString(4, obj.getPasscode());
+			st.setInt(5, obj.getId());
 
 			st.executeUpdate();
 			conn.commit();
@@ -177,7 +177,7 @@ public class UserDaoJDBC implements UserDao {
 			rs = st.executeQuery();
 			if (rs.next()) {
 				String hashedPassword = rs.getString("password");
-				if (BCrypt.checkpw(obj.getPassword(), hashedPassword)) {
+				if (Security.checkPassword(obj.getPassword(), hashedPassword)) {
 					// Senha correta
 					User user = instantiateUser(rs);
 					return user;
@@ -192,6 +192,33 @@ public class UserDaoJDBC implements UserDao {
 		}
 	}
 
+	@Override
+	public void updatePasscode(User obj) {
+		try {
+			conn.setAutoCommit(false);
+			st = conn.prepareStatement("UPDATE users "
+					+ "SET Passcode = ? " 
+					+ "WHERE Id = ?",
+					Statement.RETURN_GENERATED_KEYS);
+			st.setString(1, obj.getPasscode());
+			st.setInt(2, obj.getId());
+
+			st.executeUpdate();
+			conn.commit();
+		} catch (SQLException e) {
+			try {
+				conn.rollback();
+				throw new DbException(e.getMessage());
+			} catch (SQLException rollback) {
+				throw new DbException(rollback.getMessage());
+			}
+		} finally {
+			DB.closeStatement(st);
+		}
+
+		
+	}
+	
 	private User instantiateUser(ResultSet rs) throws SQLException {
 		User obj = new User();
 		obj.setId(rs.getInt("Id"));
@@ -201,4 +228,5 @@ public class UserDaoJDBC implements UserDao {
 		obj.setPasscode(rs.getString("Passcode"));
 		return obj;
 	}
+
 }
