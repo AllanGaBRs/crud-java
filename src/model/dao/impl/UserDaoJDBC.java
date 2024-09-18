@@ -5,7 +5,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -103,8 +106,33 @@ public class UserDaoJDBC implements UserDao {
 
 	@Override
 	public List<User> findAll() {
-		// TODO Auto-generated method stub
-		return null;
+		try {
+			st = conn.prepareStatement("SELECT * FROM users");
+
+			rs = st.executeQuery();
+
+			Map<Integer, User> map = new HashMap<>();
+			List<User> departments = new ArrayList<>();
+
+			while (rs.next()) {
+
+				User user = map.get(rs.getInt("Id"));
+
+				if (user == null) {
+					user = instantiateUser(rs);
+					map.put(user.getId(), user);
+				}
+
+				departments.add(user);
+			}
+
+			return departments;
+		} catch (SQLException e) {
+			throw new DbException(e.getMessage());
+		} finally {
+			DB.closeStatement(st);
+			DB.closeResultSet(rs);
+		}
 	}
 
 	@Override
@@ -137,6 +165,7 @@ public class UserDaoJDBC implements UserDao {
 		obj.setName(rs.getString("Name"));
 		obj.setEmail(rs.getString("Email"));
 		obj.setPassword(rs.getString("Password"));
+		obj.setPasscode(rs.getString("Passcode"));
 		return obj;
 	}
 }
