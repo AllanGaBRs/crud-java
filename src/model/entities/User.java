@@ -3,6 +3,8 @@ package model.entities;
 import java.io.Serializable;
 import java.util.Objects;
 
+import model.security.Security;
+
 public class User implements Serializable{
 	private static final long serialVersionUID = 1L;
 
@@ -65,7 +67,7 @@ public class User implements Serializable{
 	}
 
 	public void setPassword(String password) {
-		this.password = password;
+		this.password = Security.hashPassword(password);
 	}
 
 	public String getPasscode() {

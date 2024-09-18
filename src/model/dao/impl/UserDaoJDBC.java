@@ -56,12 +56,29 @@ public class UserDaoJDBC implements UserDao {
 
 	@Override
 	public void update(User obj) {
-		// TODO Auto-generated method stub
+		PreparedStatement st = null;
+		try {
+			st = conn.prepareStatement("UPDATE users "
+					+ "SET Name = ?, Email = ?, Password = ?" 
+					+ "WHERE Id = ?",
+					Statement.RETURN_GENERATED_KEYS);
+			st.setString(1, obj.getName());
+			st.setString(2, obj.getEmail());
+			st.setString(3, obj.getPassword());
+			st.setInt(4, obj.getId());
+
+			st.executeUpdate();
+
+		} catch (SQLException e) {
+			throw new DbException(e.getMessage());
+		} finally {
+			DB.closeStatement(st);
+		}
 
 	}
 
 	@Override
-	public void inactivateById(Integer id) {
+	public void deleteById(Integer id) {
 		// TODO Auto-generated method stub
 
 	}
@@ -81,8 +98,7 @@ public class UserDaoJDBC implements UserDao {
 	@Override
 	public User findByEmailPassword(User obj) {
 		try {
-			st = conn.prepareStatement("SELECT * FROM USERS WHERE email = ?",
-					Statement.RETURN_GENERATED_KEYS);
+			st = conn.prepareStatement("SELECT * FROM USERS WHERE email = ?");
 			st.setString(1, obj.getEmail());
 			
 			rs = st.executeQuery();

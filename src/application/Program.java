@@ -1,6 +1,7 @@
 package application;
 
 import java.security.NoSuchAlgorithmException;
+import java.util.Scanner;
 
 import org.mindrot.jbcrypt.BCrypt;
 
@@ -12,7 +13,7 @@ import model.security.Security;
 public class Program {
 
 	public static void main(String[] args) throws NoSuchAlgorithmException {
-
+		Scanner sc = new Scanner(System.in);
 		UserDao userDao = DaoFactory.createUserDao();
 		System.out.println(userDao);
 
@@ -26,7 +27,11 @@ public class Program {
 		User user = new User("allan", "allan@", plainPassword); 
 		//userDao.insert(user);
 		System.out.println(user.getPassword());
-		System.out.println(userDao.findByEmailPassword(user));
+		user = userDao.findByEmailPassword(user);
+		
+		user.setPassword("123");
+		userDao.update(user);
+		System.out.println(user.getPassword());
 
 	}
 }
