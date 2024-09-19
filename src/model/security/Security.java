@@ -10,7 +10,6 @@ import org.apache.commons.mail.EmailException;
 import org.apache.commons.mail.SimpleEmail;
 import org.mindrot.jbcrypt.BCrypt;
 
-import database.DbException;
 import model.dao.DaoFactory;
 import model.dao.UserDao;
 import model.entities.User;
@@ -55,7 +54,7 @@ public class Security {
 		System.setProperty("mail.smtp.ssl.protocols", "TLSv1.2");
 		String code = code();
 		String meuEmail = "inovatech.cisi@gmail.com";
-		String minhaSenha = "cpvn phzh jzso szpl"; // Senha de app gerada no Gmail
+		String minhaSenha = "colocar a senha aqui"; // Senha de app gerada no Gmail
 
 		SimpleEmail email = new SimpleEmail();
 		email.setHostName("smtp.gmail.com");
@@ -91,33 +90,17 @@ public class Security {
 		return sb.toString();
 	}
 	
-	public static User userVerification(User user, Scanner sc) {
+	public static User userVerification(User user) {
 		User path = userVerify(user);
 		if(path != null) {
 			return path;
 		}
-		return newUser(user, sc);
+		System.out.println("Dados inválidos. Tente novamente ou faça um cadastro");
+		return null;
 	}
 	
 	private static User userVerify(User user) {
 		return userDao.findByEmailPassword(user);
-	}
-	
-	private static User newUser(User user, Scanner sc) {
-		System.out.println("Ops! user dont exists. Create a new user:");
-		System.out.print("User name: ");
-		String name = sc.nextLine();
-		String email = Security.checkEmail(sc);
-		System.out.print("Password: ");
-		String senha = sc.nextLine();
-		User newUser = new User(null, name, email, senha);
-		User path = userVerify(user);
-		if(path != null) {
-			throw new DbException("Error: user exists");
-		}
-		userDao.insert(newUser);
-		System.out.println("Inserted! your id: " + newUser.getId());
-		return newUser;
 	}
 	
 }

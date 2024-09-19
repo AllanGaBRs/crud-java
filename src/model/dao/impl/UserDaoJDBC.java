@@ -19,8 +19,8 @@ import model.security.Security;
 public class UserDaoJDBC implements UserDao {
 
 	private Connection conn;
-	PreparedStatement st;
-	ResultSet rs;
+	private PreparedStatement st;
+	private ResultSet rs;
 
 	public UserDaoJDBC(Connection conn) {
 		this.conn = conn;
@@ -30,7 +30,8 @@ public class UserDaoJDBC implements UserDao {
 	public void insert(User obj) {
 		try {
 			conn.setAutoCommit(false);
-			st = conn.prepareStatement("INSERT INTO users " + "(Name, Email, Password, Passcode) " + "VALUES " + "(?, ?, ?, ?)",
+			st = conn.prepareStatement(
+					"INSERT INTO users " + "(Name, Email, Password, Passcode) " + "VALUES " + "(?, ?, ?, ?)",
 					Statement.RETURN_GENERATED_KEYS);
 			st.setString(1, obj.getName());
 			st.setString(2, obj.getEmail());
@@ -67,13 +68,12 @@ public class UserDaoJDBC implements UserDao {
 	public void update(User obj) {
 		try {
 			conn.setAutoCommit(false);
-			st = conn.prepareStatement("UPDATE users "
-					+ "SET Name = ?, Email = ?, Password = ?, Passcode = ? " 
-					+ "WHERE Id = ?",
+			st = conn.prepareStatement(
+					"UPDATE users " + "SET Name = ?, Email = ?, Password = ?, Passcode = ? " + "WHERE Id = ?",
 					Statement.RETURN_GENERATED_KEYS);
 			st.setString(1, obj.getName());
 			st.setString(2, obj.getEmail());
-			st.setString(3, obj.getPassword());
+			st.setString(3, Security.hashPassword(obj.getPassword()));
 			st.setString(4, obj.getPasscode());
 			st.setInt(5, obj.getId());
 
@@ -173,7 +173,7 @@ public class UserDaoJDBC implements UserDao {
 		try {
 			st = conn.prepareStatement("SELECT * FROM USERS WHERE email = ?");
 			st.setString(1, obj.getEmail());
-			
+
 			rs = st.executeQuery();
 			if (rs.next()) {
 				String hashedPassword = rs.getString("password");
@@ -196,9 +196,7 @@ public class UserDaoJDBC implements UserDao {
 	public void updatePasscode(User obj) {
 		try {
 			conn.setAutoCommit(false);
-			st = conn.prepareStatement("UPDATE users "
-					+ "SET Passcode = ? " 
-					+ "WHERE Id = ?",
+			st = conn.prepareStatement("UPDATE users " + "SET Passcode = ? " + "WHERE Id = ?",
 					Statement.RETURN_GENERATED_KEYS);
 			st.setString(1, obj.getPasscode());
 			st.setInt(2, obj.getId());
@@ -216,9 +214,49 @@ public class UserDaoJDBC implements UserDao {
 			DB.closeStatement(st);
 		}
 
-		
 	}
-	
+
+	@Override
+	public String findPasscode(User obj) {
+		try {
+			st = conn.prepareStatement("SELECT passcode FROM users " + "WHERE Id = ?");
+			st.setInt(1, obj.getId());
+
+			rs = st.executeQuery();
+
+			if (rs.next()) {
+				return rs.getString("passcode");
+			}
+
+			return null;
+		} catch (SQLException e) {
+			throw new DbException(e.getMessage());
+		} finally {
+			DB.closeResultSet(rs);
+			DB.closeStatement(st);
+		}
+	}
+
+	@Override
+	public User findByEmail(User obj) {
+		try {
+			st = conn.prepareStatement("SELECT * FROM USERS WHERE email = ?");
+			st.setString(1, obj.getEmail());
+
+			rs = st.executeQuery();
+			if (rs.next()) {
+				User user = instantiateUser(rs);
+				return user;
+			}
+			return null;
+		} catch (SQLException e) {
+			throw new DbException(e.getMessage());
+		} finally {
+			DB.closeResultSet(rs);
+			DB.closeStatement(st);
+		}
+	}
+
 	private User instantiateUser(ResultSet rs) throws SQLException {
 		User obj = new User();
 		obj.setId(rs.getInt("Id"));

@@ -3,33 +3,46 @@ package application;
 import java.security.NoSuchAlgorithmException;
 import java.util.Scanner;
 
-import org.mindrot.jbcrypt.BCrypt;
-
-import model.dao.DaoFactory;
-import model.dao.UserDao;
-import model.entities.User;
-import model.security.Security;
-
 public class Program {
 
 	public static void main(String[] args) throws NoSuchAlgorithmException {
-		UserDao userDao = DaoFactory.createUserDao();
-		
+
 		Scanner sc = new Scanner(System.in);
+		boolean continuar = true;
 
-		String email = Security.checkEmail(sc);
+		while (continuar) {
+			System.out.println("Escolha uma opção:");
+			System.out.println("1 - Registrar");
+			System.out.println("2 - Listar todos");
+			System.out.println("3 - Excluir");
+			System.out.println("4 - Alterar senha");
+			System.out.println("5 - Sair");
 
-		System.out.print("Password: ");
-		String password = sc.nextLine();
+			int opcao = sc.nextInt();
+			sc.nextLine();
 
-	
-		User user = new User(email, password);
-		
-		user = Security.userVerification(user, sc);
-		System.out.println(user.getEmail() + " " + user.getPassword());
-		
-		//Security.sendCodeByEmail(user);	
-		//System.out.println("your id " + user.getId());
+			switch (opcao) {
+			case 1:
+				Functions.register(sc);
+				break;
+			case 2:
+				Functions.listAll();
+				break;
+			case 3:
+				Functions.delete(sc);
+				break;
+			case 4:
+				Functions.changePassword(sc);
+				break;
+			case 5:
+				continuar = false;
+				System.out.println("Saindo...");
+				break;
+			default:
+				System.out.println("Opção inválida. Tente novamente.");
+			}
+		}
 
+		sc.close();
 	}
 }

@@ -12,6 +12,8 @@ public interface UserDao {
 	void deleteById(Integer id);
 	User findById(Integer id);
 	User findByEmailPassword(User obj);
+	User findByEmail(User obj);
 	List<User> findAll();
+	String findPasscode(User obj);
 	
 }
