@@ -9,7 +9,7 @@ Cadastro de Usuário: Permite criar um novo usuário com nome, e-mail e senha.
 
 Listar Usuários: Exibe todos os usuários cadastrados.
 
-Editar Usuário: Permite atualizar informações como e-mail e senha.
+Editar Usuário: Permite atualizar senha.
 
 Excluir Usuário: Remove usuários do sistema.
 
